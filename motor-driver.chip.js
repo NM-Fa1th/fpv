@@ -1,25 +1,36 @@
+// motor-driver.chip.js
+
 module.exports = {
-  pins: {
-    PWM_IN: {
-      type: "din",
-      onSignal(state) {
-        const now = this.context.time;
-        if (state) {
-          this._lastRise = now;
-          if (this._lastFall) this._lowTime = this._lastRise - this._lastFall;
-        } else {
-          this._lastFall = now;
-          if (this._lastRise) {
-            this._highTime = this._lastFall - this._lastRise;
-            const period = this._highTime + this._lowTime;
-            if (period > 0) {
-              const freq = 1_000_000 / period;
-              const duty = (this._highTime / period) * 100;
-              console.log(`Частота: ${freq.toFixed(1)} Гц, Заповнення: ${duty.toFixed(1)}%`);
-            }
-          }
-        }
-      }
+  id: 'motor-driver-chip',
+  name: 'Motor Driver Chip',
+
+  inputs: [
+    {
+      id: 'PWM_IN',
+      name: 'PWM Input',
+      type: 'pwm',
+      description: 'PWM input signal',
     }
+  ],
+
+  outputs: [
+    {
+      id: 'PWM_OUT',
+      name: 'PWM Output',
+      type: 'pwm',
+      description: 'PWM output signal',
+    }
+  ],
+
+  setup: function () {
+    // Налаштовуємо чип на обробку PWM сигналу
+    this.on('PWM_IN', (value) => {
+      console.log('Received PWM signal: ', value);  // Вивести значення на консоль
+      this.setOutput('PWM_OUT', value); // Повертаємо сигнал
+    });
+  },
+
+  loop: function () {
+    // Можна додати додаткову обробку
   }
 };
